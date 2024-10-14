@@ -1,5 +1,9 @@
 ﻿@page
+@using AmarOvijog.Models
 @model IndexModel
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
 @{
     ViewData["Title"] = "Profile";
     ViewData["ActivePage"] = ManageNavPages.Index;

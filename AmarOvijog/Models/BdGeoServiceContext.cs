@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -22,10 +23,29 @@ namespace AmarOvijog.Models
         public virtual DbSet<Union> Unions { get; set; } = null!;
         public virtual DbSet<Upazila> Upazilas { get; set; } = null!;
 
-   
+        public virtual DbSet<Complaint> Complaints { get; set; } = null!;
+        public virtual DbSet<ComplaintImage> ComplaintImages { get; set; } = null!;
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<IdentityUserLogin<string>>(entity =>
+            {
+                entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
+            });
+
+            modelBuilder.Entity<IdentityUserRole<string>>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId });
+            });
+
+            modelBuilder.Entity<IdentityUserToken<string>>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
+            });
+
+
             modelBuilder.Entity<District>(entity =>
             {
                 entity.Property(e => e.BnName).HasMaxLength(25);

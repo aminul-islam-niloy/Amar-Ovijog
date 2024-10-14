@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace AmarOvijog.Models
 {
-    public partial class BdGeoServiceContext : DbContext
+    public partial class BdGeoServiceContext : IdentityDbContext<ApplicationUser>
     {
         public BdGeoServiceContext()
         {

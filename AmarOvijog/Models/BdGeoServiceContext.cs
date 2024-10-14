@@ -46,6 +46,46 @@ namespace AmarOvijog.Models
             });
 
 
+
+            modelBuilder.Entity<Complaint>(entity =>
+            {
+                entity.HasOne(c => c.User)
+                      .WithMany() // Assuming one-to-many from ApplicationUser to Complaint
+                      .HasForeignKey(c => c.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(c => c.Division)
+                      .WithMany() // Assuming Division can have many complaints
+                      .HasForeignKey(c => c.DivisionId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(c => c.District)
+                      .WithMany() // Assuming District can have many complaints
+                      .HasForeignKey(c => c.DistrictId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(c => c.Upazila)
+                      .WithMany() // Assuming Upazila can have many complaints
+                      .HasForeignKey(c => c.UpazilaId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(c => c.Union)
+                      .WithMany() // Assuming Union can have many complaints
+                      .HasForeignKey(c => c.UnionId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<ComplaintImage>(entity =>
+            {
+                entity.HasOne(ci => ci.Complaint)
+                      .WithMany(c => c.ComplaintImages)
+                      .HasForeignKey(ci => ci.ComplaintId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+
+
+
             modelBuilder.Entity<District>(entity =>
             {
                 entity.Property(e => e.BnName).HasMaxLength(25);

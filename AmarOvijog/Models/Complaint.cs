@@ -17,44 +17,44 @@ namespace AmarOvijog.Models
         public string Description { get; set; } = string.Empty;
 
         // Foreign key for ApplicationUser (Identity User)
-        //[Required]
-        //[ForeignKey("ApplicationUser")]
-        //public string UserId { get; set; } = string.Empty;
+        [Required]
+        [ForeignKey("ApplicationUser")]
+        public string UserId { get; set; } = string.Empty;
 
-        //// Navigation property for ApplicationUser
-        //public ApplicationUser User { get; set; } = null!;
+        // Navigation property for ApplicationUser
+        public ApplicationUser User { get; set; } = null!;
 
-        //// Foreign key for Division
-        //[Required]
-        //[ForeignKey("Division")]
-        //public int DivisionId { get; set; }
+        // Foreign key for Division
+        [Required]
+        [ForeignKey("Division")]
+        public int DivisionId { get; set; }
 
-        //// Navigation property for Division
-        //public Division Division { get; set; } = null!;
+        // Navigation property for Division
+        public Division Division { get; set; } = null!;
 
-        //// Foreign key for District
-        //[Required]
-        //[ForeignKey("District")]
-        //public int DistrictId { get; set; }
+        // Foreign key for District
+        [Required]
+        [ForeignKey("District")]
+        public int DistrictId { get; set; }
 
-        //// Navigation property for District
-        //public District District { get; set; } = null!;
+        // Navigation property for District
+        public District District { get; set; } = null!;
 
-        //// Foreign key for Upazila
-        //[Required]
-        //[ForeignKey("Upazila")]
-        //public int UpazilaId { get; set; }
+        // Foreign key for Upazila
+        [Required]
+        [ForeignKey("Upazila")]
+        public int UpazilaId { get; set; }
 
-        //// Navigation property for Upazila
-        //public Upazila Upazila { get; set; } = null!;
+        // Navigation property for Upazila
+        public Upazila Upazila { get; set; } = null!;
 
-        //// Foreign key for Union
-        //[Required]
-        //[ForeignKey("Union")]
-        //public int UnionId { get; set; }
+        // Foreign key for Union
+        [Required]
+        [ForeignKey("Union")]
+        public int UnionId { get; set; }
 
-        //// Navigation property for Union
-        //public Union Union { get; set; } = null!;
+        // Navigation property for Union
+        public Union Union { get; set; } = null!;
 
         // Collection for related ComplaintImages
         public ICollection<ComplaintImage> ComplaintImages { get; set; } = new List<ComplaintImage>();

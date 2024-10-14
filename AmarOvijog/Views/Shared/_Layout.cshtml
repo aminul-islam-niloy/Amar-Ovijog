@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Mvc.ViewEngines
 @inject IWebHostEnvironment Environment
 @inject ICompositeViewEngine Engine
+
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -28,6 +29,15 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+
+            <ul>
+                <li>
+                    <a class="navbar-brand" asp-area="Admin" asp-controller="Divisions" asp-action="Index">
+                       Go to home
+                    </a>
+                </li>
+                </ul>
+            
             <div class="container">
                 <a class="navbar-brand" href="~/">AmarOvijog</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"

@@ -5,43 +5,39 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllersWithViews();
 
-// Add services to the container.
-builder.Services.AddControllers();
-
-// Add DbContext and Identity services
+// Configure DbContext and Identity services
 builder.Services.AddDbContext<BdGeoServiceContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<BdGeoServiceContext>();
-
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<BdGeoServiceContext>();
-
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+// Configure Identity with ApplicationUser and IdentityRole
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    // options.SignIn.RequireConfirmedAccount = true;
+})
     .AddEntityFrameworkStores<BdGeoServiceContext>()
+        .AddDefaultUI()
     .AddDefaultTokenProviders();
 
-// Learn more about configuring Swagger/OpenAPI
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
 app.UseHttpsRedirection();
 
-// Add authentication middleware before authorization
+app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+        name: "areas",
+        pattern: "{area=Admin}/{controller=Divisions}/{action=Index}/{id?}");
+    endpoints.MapRazorPages();
+});
 
 app.Run();

@@ -1,79 +1,171 @@
 ﻿@model AmarOvijog.Models.Complaint
 
-@{
-    ViewData["Title"] = "Edit";
-}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <div class="card p-4 rounded border">
+                    <h3 class="text-info mb-2 text-center">Edit Complaint</h3>
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<h1>Edit</h1>
+                    <div class="row">
+                        <!-- Left Section: Complaint Information -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Title"></label>
+                                <input asp-for="Title" class="form-control" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
 
-<h4>Complaint</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DivisionId" class="control-label"></label>
-                <select asp-for="DivisionId" class="form-control" asp-items="ViewBag.DivisionId"></select>
-                <span asp-validation-for="DivisionId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DistrictId" class="control-label"></label>
-                <select asp-for="DistrictId" class="form-control" asp-items="ViewBag.DistrictId"></select>
-                <span asp-validation-for="DistrictId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpazilaId" class="control-label"></label>
-                <select asp-for="UpazilaId" class="form-control" asp-items="ViewBag.UpazilaId"></select>
-                <span asp-validation-for="UpazilaId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UnionId" class="control-label"></label>
-                <select asp-for="UnionId" class="form-control" asp-items="ViewBag.UnionId"></select>
-                <span asp-validation-for="UnionId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsResolved" /> @Html.DisplayNameFor(model => model.IsResolved)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsRead" /> @Html.DisplayNameFor(model => model.IsRead)
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                            <div class="form-group">
+                                <label asp-for="Description"></label>
+                                <textarea asp-for="Description" class="form-control"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="DivisionId">Division</label>
+                                @Html.DropDownListFor(model => model.DivisionId, ViewData["DivisionId"] as SelectList, "-- Select Division --", new { @class = "form-control", @id = "divisionDropdown" })
+                            </div>
+
+                            <div class="form-group">
+                                <label for="DistrictId">District</label>
+                                <select asp-for="DistrictId" id="districtDropdown" class="form-control">
+                                    <option value="">-- Select District --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="UpazilaId">Upazila</label>
+                                <select asp-for="UpazilaId" id="upazilaDropdown" class="form-control">
+                                    <option value="">-- Select Upazila --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="UnionId">Union</label>
+                                <select asp-for="UnionId" id="unionDropdown" class="form-control">
+                                    <option value="">-- Select Union --</option>
+                                </select>
+                            </div>
+                       
+                        </div>
+
+                        <!-- Right Section: Image Upload and Existing Images -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Upload New Images</label>
+                                <input type="file" name="images" class="form-control" multiple onchange="previewImages(event)" />
+                                <div id="imagePreview" class="d-flex flex-wrap mt-2"></div>
+                            </div>
+
+                            <h5 class="text-info mt-3">Existing Images:</h5>
+                            <div class="d-flex flex-wrap mt-2">
+                                @foreach (var image in Model.ComplaintImages)
+                                {
+                                    <div class="m-2 position-relative">
+                                        <img src="@Url.Content(image.ImageUrl)" alt="Complaint Image" class="img-thumbnail" style="height: 70px; width: 70px; object-fit: cover;" />
+                                        <a href="@Url.Action("RemoveImage", new { id = image.Id })" class="btn btn-danger btn-sm" style="position:absolute; top:5px; right:5px;">&times;</a>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="form-group text-right mt-4">
+                                <input type="submit" class="btn btn-primary" value="Update Complaint" />
+                                <a asp-action="Index" class="btn btn-secondary" style="margin-left:5px">Back to List</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Image preview script
+        function previewImages(event) {
+            var files = event.target.files;
+            var preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+
+            for (var i = 0; i < files.length; i++) {
+                (function (fileIndex) {
+                    var imgWrapper = document.createElement('div');
+                    imgWrapper.style.position = 'relative';
+                    imgWrapper.style.display = 'inline-block';
+                    imgWrapper.style.margin = '10px';
+
+                    var img = document.createElement('img');
+                    img.src = URL.createObjectURL(files[fileIndex]);
+                    img.classList.add('img-thumbnail');
+                    img.style.height = '60px';
+                    img.style.width = '70px';
+                    img.style.objectFit = 'cover';
+                    imgWrapper.appendChild(img);
+
+                    var removeBtn = document.createElement('button');
+                    removeBtn.innerHTML = '&#10006;';
+                    removeBtn.classList.add('btn', 'btn-sm');
+                    removeBtn.style.position = 'absolute';
+                    removeBtn.style.top = '5px';
+                    removeBtn.style.right = '5px';
+                    removeBtn.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
+                    removeBtn.style.border = 'none';
+                    removeBtn.style.color = 'white';
+                    removeBtn.style.borderRadius = '50%';
+                    removeBtn.style.padding = '2px';
+                    removeBtn.style.cursor = 'pointer';
+                    removeBtn.onclick = function () {
+                        var dt = new DataTransfer();
+                        for (var j = 0; j < files.length; j++) {
+                            if (fileIndex !== j) dt.items.add(files[j]);
+                        }
+                        document.querySelector('input[type=file]').files = dt.files;
+                        preview.removeChild(imgWrapper);
+                    };
+
+                    imgWrapper.appendChild(removeBtn);
+                    preview.appendChild(imgWrapper);
+                })(i);
+            }
+        }
+
+
+        // Dropdown population scripts for division, district, upazila, and union
+        $('#divisionDropdown').change(function () {
+            var divisionId = $(this).val();
+            $.getJSON('/User/Complaints/GetDistricts', { divisionId: divisionId }, function (districts) {
+                var districtDropdown = $('#districtDropdown');
+                districtDropdown.empty().append('<option>-- Select District --</option>');
+                $.each(districts, function (i, district) {
+                    districtDropdown.append('<option value="' + district.id + '">' + district.name + '</option>');
+                });
+            });
+        });
+
+        $('#districtDropdown').change(function () {
+            var districtId = $(this).val();
+            $.getJSON('/User/Complaints/GetUpazilas', { districtId: districtId }, function (upazilas) {
+                var upazilaDropdown = $('#upazilaDropdown');
+                upazilaDropdown.empty().append('<option>-- Select Upazila --</option>');
+                $.each(upazilas, function (i, upazila) {
+                    upazilaDropdown.append('<option value="' + upazila.id + '">' + upazila.name + '</option>');
+                });
+            });
+        });
+
+        $('#upazilaDropdown').change(function () {
+            var upazilaId = $(this).val();
+            $.getJSON('/User/Complaints/GetUnions', { upazilaId: upazilaId }, function (unions) {
+                var unionDropdown = $('#unionDropdown');
+                unionDropdown.empty().append('<option>-- Select Union --</option>');
+                $.each(unions, function (i, union) {
+                    unionDropdown.append('<option value="' + union.id + '">' + union.name + '</option>');
+                });
+            });
+        });
+
+    </script>
 }

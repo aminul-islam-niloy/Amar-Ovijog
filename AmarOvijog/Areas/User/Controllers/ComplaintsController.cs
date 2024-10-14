@@ -79,7 +79,7 @@ namespace AmarOvijog.Areas.User.Controllers
                 _context.Add(complaint);
                 await _context.SaveChangesAsync();
 
-            // Handle image uploads
+            
             // Handle image uploads
             foreach (var image in images)
             {
@@ -141,6 +141,8 @@ namespace AmarOvijog.Areas.User.Controllers
             return Json(unions);
         }
         // GET: User/Complaints/Edit/5
+
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Complaints == null)
@@ -148,58 +150,68 @@ namespace AmarOvijog.Areas.User.Controllers
                 return NotFound();
             }
 
-            var complaint = await _context.Complaints.FindAsync(id);
+            var complaint = await _context.Complaints
+                .Include(c => c.District)
+                .Include(c => c.Division)
+                .Include(c => c.Union)
+                .Include(c => c.Upazila)
+                .Include(c => c.User)
+                .Include(c => c.ComplaintImages) // Load existing images
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (complaint == null)
             {
                 return NotFound();
             }
-            ViewData["DistrictId"] = new SelectList(_context.Districts, "Id", "Id", complaint.DistrictId);
-            ViewData["DivisionId"] = new SelectList(_context.Divisions, "Id", "Id", complaint.DivisionId);
-            ViewData["UnionId"] = new SelectList(_context.Unions, "Id", "Id", complaint.UnionId);
-            ViewData["UpazilaId"] = new SelectList(_context.Upazilas, "Id", "Id", complaint.UpazilaId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", complaint.UserId);
+
+            ViewData["DivisionId"] = new SelectList(_context.Divisions, "Id", "Name", complaint.DivisionId);
+            ViewData["DistrictId"] = new SelectList(_context.Districts, "Id", "Name", complaint.DistrictId);
+            ViewData["UpazilaId"] = new SelectList(_context.Upazilas, "Id", "Name", complaint.UpazilaId);
+            ViewData["UnionId"] = new SelectList(_context.Unions, "Id", "Name", complaint.UnionId);
+
             return View(complaint);
         }
 
-        // POST: User/Complaints/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,UserId,DivisionId,DistrictId,UpazilaId,UnionId,CreatedAt,IsResolved,IsRead")] Complaint complaint)
+        public async Task<IActionResult> Edit(Complaint complaint, List<IFormFile> images)
         {
-            if (id != complaint.Id)
+            // Automatically set the current user's ID
+            complaint.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Handle image uploads
+            foreach (var image in images)
             {
-                return NotFound();
+                if (image != null && image.Length > 0)
+                {
+                    var fileName = Path.GetFileName(image.FileName);
+                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", fileName);
+
+                    // Save the image to the server
+                    using (var stream = new FileStream(imagePath, FileMode.Create))
+                    {
+                        await image.CopyToAsync(stream);
+                    }
+
+                    // Create a new ComplaintImage entity
+                    var complaintImage = new ComplaintImage
+                    {
+                        ComplaintId = complaint.Id,
+                        ImageUrl = "/Images/" + fileName
+                    };
+
+                    // Add the image to the context
+                    _context.ComplaintImages.Update(complaintImage);
+                }
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(complaint);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ComplaintExists(complaint.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["DistrictId"] = new SelectList(_context.Districts, "Id", "Id", complaint.DistrictId);
-            ViewData["DivisionId"] = new SelectList(_context.Divisions, "Id", "Id", complaint.DivisionId);
-            ViewData["UnionId"] = new SelectList(_context.Unions, "Id", "Id", complaint.UnionId);
-            ViewData["UpazilaId"] = new SelectList(_context.Upazilas, "Id", "Id", complaint.UpazilaId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", complaint.UserId);
-            return View(complaint);
+            _context.Update(complaint);
+            await _context.SaveChangesAsync();
+      
+
+            return RedirectToAction(nameof(Index));
         }
+
 
         // GET: User/Complaints/Delete/5
         public async Task<IActionResult> Delete(int? id)
